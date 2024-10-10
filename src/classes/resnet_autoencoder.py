@@ -6,6 +6,7 @@ from classes.resnet_using_light_basic_block_encoder import LightEncoder, LightBa
 from classes.resnet_using_light_basic_block_decoder import LightDecoder, LightBasicBlockDec
 
 class AE(nn.Module):
+
     """Construction of resnet autoencoder.
 
     Attributes:
@@ -16,7 +17,7 @@ class AE(nn.Module):
             of network, 34 layers for default only network and 20 layers for light network. 
     """
 
-    def __init__(self, network='default', num_layers=18):
+    def __init__(self,network='default', nz=8 , num_layers=18):
         """Initialize the autoencoder.
 
         Args:
@@ -62,12 +63,12 @@ class AE(nn.Module):
         self.enc_pool = nn.MaxPool2d(kernel_size=2, stride=2)
         
         # Fully connected layer to reduce from 32 * 8 * 8 = 2048 to 8 dimensions
-        self.enc_fc = nn.Linear(32 * 8 * 8, 8)
+        self.enc_fc = nn.Linear(32 * 8 * 8, nz)
 
 
 
        # Fully connected layer to expand 8-dim vector to 32 * 8 * 8
-        self.dec_fc = nn.Linear(8, 32 * 8 * 8)
+        self.dec_fc = nn.Linear(nz, 32 * 8 * 8)
         
         # self.deconv = nn.ConvTranspose2d(in_channels=32, out_channels=64, kernel_size=4, stride=2, padding=1)
 
