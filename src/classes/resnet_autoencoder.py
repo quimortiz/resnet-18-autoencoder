@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 
 from classes.resnet_using_basic_block_encoder import Encoder, BasicBlockEnc
 from classes.resnet_using_basic_block_decoder import Decoder, BasicBlockDec
@@ -17,7 +18,7 @@ class AE(nn.Module):
             of network, 34 layers for default only network and 20 layers for light network. 
     """
 
-    def __init__(self,network='default', nz=8 , num_layers=18):
+    def __init__(self,network='default', nz=8 , num_layers=18, weights=None):
         """Initialize the autoencoder.
 
         Args:
@@ -27,6 +28,7 @@ class AE(nn.Module):
         """
         super().__init__()
         self.network = network
+        self.weights= weights
         if self.network == 'default':
             if num_layers==18:
                 # resnet 18 encoder
@@ -82,6 +84,10 @@ class AE(nn.Module):
         self.dec_bn2 = nn.BatchNorm2d(64)
 
 
+        if  self.weights is not None:
+            self.load_state_dict(torch.load(self.weights)["vision_state_dict"])
+            self.eval()
+            print("weights loaded!")
 
 
     def encode(self,x):
