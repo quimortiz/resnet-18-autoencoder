@@ -5,7 +5,10 @@ from torch import Tensor
 
 """From https://pytorch.org/vision/main/_modules/torchvision/models/resnet.html#resnet18"""
 
-def conv3x3(in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, dilation: int = 1) -> nn.Conv2d:
+
+def conv3x3(
+    in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, dilation: int = 1
+) -> nn.Conv2d:
     """3x3 convolution with padding"""
     return nn.Conv2d(
         in_planes,
@@ -18,6 +21,7 @@ def conv3x3(in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, d
         dilation=dilation,
     )
 
+
 def conv1x1(in_planes: int, out_planes: int, stride: int = 1) -> nn.Conv2d:
     """1x1 convolution"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
@@ -25,6 +29,7 @@ def conv1x1(in_planes: int, out_planes: int, stride: int = 1) -> nn.Conv2d:
 
 class LightBasicBlockEnc(nn.Module):
     """The basic block architecture of resnet-18 network for smaller input images."""
+
     expansion: int = 1
 
     def __init__(
@@ -71,10 +76,10 @@ class LightBasicBlockEnc(nn.Module):
         return out
 
 
-
 class LightEncoder(nn.Module):
-    """The encoder model, following the architecture of resnet-18 
+    """The encoder model, following the architecture of resnet-18
     for smaller input images."""
+
     def __init__(
         self,
         block: Type[LightBasicBlockEnc],
@@ -107,8 +112,12 @@ class LightEncoder(nn.Module):
         self.bn1 = norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
         self.layer1 = self._make_layer(block, 16, layers[0])
-        self.layer2 = self._make_layer(block, 32, layers[1], stride=2, dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(block, 64, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
+        self.layer2 = self._make_layer(
+            block, 32, layers[1], stride=2, dilate=replace_stride_with_dilation[0]
+        )
+        self.layer3 = self._make_layer(
+            block, 64, layers[2], stride=2, dilate=replace_stride_with_dilation[1]
+        )
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -141,8 +150,8 @@ class LightEncoder(nn.Module):
             stride = 1
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                conv3x3(self.inplanes, planes * block.expansion, stride), 
-                # If we use conv1x1 here, then we should also use it in the decoder 
+                conv3x3(self.inplanes, planes * block.expansion, stride),
+                # If we use conv1x1 here, then we should also use it in the decoder
                 # part. But some pixels will be left unconstructed (simple noise) on decoding.
                 norm_layer(planes * block.expansion),
             )
@@ -150,7 +159,14 @@ class LightEncoder(nn.Module):
         layers = []
         layers.append(
             block(
-                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer
+                self.inplanes,
+                planes,
+                stride,
+                downsample,
+                self.groups,
+                self.base_width,
+                previous_dilation,
+                norm_layer,
             )
         )
         self.inplanes = planes * block.expansion
